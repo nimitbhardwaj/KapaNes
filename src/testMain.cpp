@@ -3,6 +3,6 @@
 using namespace NES;
 
 int main() {
-    const CPU c = CPU();
+    CPU c = CPU();
     return 0;
 }

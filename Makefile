@@ -1,6 +1,6 @@
 all:
-	g++ -Iinclude/  ./src/cpu.cpp ./src/ram.cpp ./src/testMain.cpp -o posNes \
-		-std=c++11
+	g++ -Iinclude/  ./src/cpu.cpp ./src/memory_unit.cpp ./src/testMain.cpp \
+	./src/ram_unit.cpp -o kapaNes -std=c++11
 
 clean:
-	rm posNes
+	rm kapaNes
