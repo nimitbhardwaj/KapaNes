@@ -4,3 +4,6 @@ all:
 
 clean:
 	rm kapaNes
+
+test:
+	cd tests && make

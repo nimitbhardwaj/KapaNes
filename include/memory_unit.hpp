@@ -3,15 +3,14 @@
 
 #include <cstdint>
 #include <ram_unit.hpp>
-#include <abstract_unit.hpp>
 
 namespace NES 
 {
 
 
-class MemoryUnit: public AbstractUnit{
+class MemoryUnit{
     private:
-        Ram randAccMem;
+        Ram *randAccMem;
         uint16_t getNormalizedAddr(uint16_t, uint16_t *) const;
     public:
         MemoryUnit();

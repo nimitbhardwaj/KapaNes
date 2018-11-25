@@ -3,6 +3,7 @@
 using namespace NES;
 
 int main() {
-    CPU c = CPU();
+    CPU *c = new CPU();
+    delete c;
     return 0;
 }

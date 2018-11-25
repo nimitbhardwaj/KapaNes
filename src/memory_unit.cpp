@@ -1,14 +1,15 @@
 #include <memory_unit.hpp>
-
+#include <cstdio>
 
 namespace NES
 {
 
 MemoryUnit::MemoryUnit() {
-    randAccMem = Ram();
+    randAccMem = new Ram();
 }
 
 MemoryUnit::~MemoryUnit() {
+    delete randAccMem;
 }
 
 uint16_t MemoryUnit::getNormalizedAddr(uint16_t addr, uint16_t *caseType) const{
@@ -44,7 +45,7 @@ void MemoryUnit::setByteAt(uint16_t pos, uint8_t val) {
     switch (type) {
         case 0:
             // RAM access
-            randAccMem.setByteAt(pos, val);
+            randAccMem->setByteAt(pos, val);
             break;
         case 1:
             // PPU Access
@@ -68,7 +69,7 @@ uint8_t MemoryUnit::getByteAt(uint16_t pos) const {
     switch(type) {
         case 0:
             // RAM access
-            ret = randAccMem.getByteAt(pos);
+            ret = randAccMem->getByteAt(pos);
             break;
         case 1:
             // PPU Access

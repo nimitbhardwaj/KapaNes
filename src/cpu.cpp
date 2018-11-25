@@ -10,16 +10,15 @@ namespace NES
         // Initials of registers
         regAcc = regX = regY = flags = 0;
         stackPtr = instPtr = 0;
-
         // ORA
-        insertOpcode(makeOpCode(0b000, 0b000, 0b01), &CPU::ora_indirect_x);
-        insertOpcode(makeOpCode(0b000, 0b001, 0b01), &CPU::ora_zeropg);
-        insertOpcode(makeOpCode(0b000, 0b010, 0b01), &CPU::ora_immediate);
-        insertOpcode(makeOpCode(0b000, 0b011, 0b01), &CPU::ora_absolute);
-        insertOpcode(makeOpCode(0b000, 0b100, 0b01), &CPU::ora_indirect_y);
-        insertOpcode(makeOpCode(0b000, 0b101, 0b01), &CPU::ora_zeropg_x);
-        insertOpcode(makeOpCode(0b000, 0b110, 0b01), &CPU::ora_absolute_y);
-        insertOpcode(makeOpCode(0b000, 0b111, 0b01), &CPU::ora_absolute_x);
+        insertOpcode(makeOpCode(0b000, 0b000, 0b01), &CPU::ora_indirect_x, "ORA_IND_X");
+        insertOpcode(makeOpCode(0b000, 0b001, 0b01), &CPU::ora_zeropg, "ORA_ZEROPG");
+        insertOpcode(makeOpCode(0b000, 0b010, 0b01), &CPU::ora_immediate, "ORA_IMM");
+        insertOpcode(makeOpCode(0b000, 0b011, 0b01), &CPU::ora_absolute, "ORA_ABS");
+        insertOpcode(makeOpCode(0b000, 0b100, 0b01), &CPU::ora_indirect_y, "ORA_IND_Y");
+        insertOpcode(makeOpCode(0b000, 0b101, 0b01), &CPU::ora_zeropg_x, "ORA_ZEROPG_X");
+        insertOpcode(makeOpCode(0b000, 0b110, 0b01), &CPU::ora_absolute_y, "ORA_ABS_Y");
+        insertOpcode(makeOpCode(0b000, 0b111, 0b01), &CPU::ora_absolute_x, "ORA_ABS_X");
                           
 
     }
@@ -38,9 +37,10 @@ namespace NES
         return ret;
     }
 
-    void CPU::insertOpcode(uint8_t opcode, opcodeFun fun) {
+    void CPU::insertOpcode(uint8_t opcode, opcodeFun fun, const string &S) {
         opCodes.insert(make_pair(opcode, fun));
         opcodeBag.insert(opcode);
+        opcodeNameLookup.insert(make_pair(S, opcode));
     }
 
 
@@ -174,6 +174,10 @@ namespace NES
             printf("Warning: %s\n", e.what());
             return false;
         }
+    }
+
+    uint8_t CPU::getOpcode(const string &S) const {
+        return opcodeNameLookup.find(S)->second;
     }
     
 

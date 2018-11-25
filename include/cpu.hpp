@@ -14,6 +14,7 @@
 using std::string;
 using std::unordered_map;
 using std::unordered_set;
+using std::string;
 
 namespace NES 
 {
@@ -35,13 +36,13 @@ class CPU {
 
         uint8_t regAcc, regX, regY, flags;
         uint16_t stackPtr, instPtr;
-
         opcodeMap opCodes;
         unordered_set<uint8_t> opcodeBag;
+        unordered_map<string, uint8_t> opcodeNameLookup;
 
         uint8_t makeOpCode(uint8_t a, uint8_t b, uint8_t c) const;
         bool opcodeNotAvailable(uint8_t opcode);
-        void insertOpcode(uint8_t opcode, opcodeFun);
+        void insertOpcode(uint8_t opcode, opcodeFun, const string &);
         void changeFlags();
 
 
@@ -60,6 +61,20 @@ class CPU {
         CPU();
         ~CPU();
         bool executeInstruction(const MemoryUnit &);
+        uint8_t getOpcode(const string &) const;
+        
+        inline uint8_t getAccumulator() const { return regAcc; }
+        inline uint8_t getRegX() const { return regX; }
+        inline uint8_t getRegY() const { return regY; }
+        inline uint8_t getFlags() const { return flags; }
+        inline uint16_t getInstPtr() const { return instPtr; }
+        inline uint16_t getStackPtr() const { return stackPtr; }
+
+        inline void setInstPtr(uint16_t x) { instPtr = x; }
+        inline void setRegX(uint8_t x) { regX = x; }
+        inline void setRegY(uint8_t x) { regY = x; }
+
+
 };
 
 
