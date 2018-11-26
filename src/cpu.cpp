@@ -19,7 +19,16 @@ namespace NES
         insertOpcode(makeOpCode(0b000, 0b101, 0b01), &CPU::ora_zeropg_x, "ORA_ZEROPG_X");
         insertOpcode(makeOpCode(0b000, 0b110, 0b01), &CPU::ora_absolute_y, "ORA_ABS_Y");
         insertOpcode(makeOpCode(0b000, 0b111, 0b01), &CPU::ora_absolute_x, "ORA_ABS_X");
-                          
+        // AND  
+        insertOpcode(makeOpCode(0b001, 0b000, 0b01), &CPU::and_indirect_x, "AND_IND_X");
+        insertOpcode(makeOpCode(0b001, 0b001, 0b01), &CPU::and_zeropg, "AND_ZEROPG");
+        insertOpcode(makeOpCode(0b001, 0b010, 0b01), &CPU::and_immediate, "AND_IMM");
+        insertOpcode(makeOpCode(0b001, 0b011, 0b01), &CPU::and_absolute, "AND_ABS");
+        insertOpcode(makeOpCode(0b001, 0b100, 0b01), &CPU::and_indirect_y, "AND_IND_Y");
+        insertOpcode(makeOpCode(0b001, 0b101, 0b01), &CPU::and_zeropg_x, "AND_ZEROPG_X");
+        insertOpcode(makeOpCode(0b001, 0b110, 0b01), &CPU::and_absolute_y, "AND_ABS_Y");
+        insertOpcode(makeOpCode(0b001, 0b111, 0b01), &CPU::and_absolute_x, "AND_ABS_X");
+           
 
     }
 
@@ -53,10 +62,24 @@ namespace NES
     }
 
     void CPU::changeFlags() {
-
+        const uint8_t x = regAcc;
+        // ZeroFlag
+        if (x == 0) {
+            flags = flags | (1<<0);
+        } else {
+            flags = flags & (~(1<<0));
+        }
+        
+        // Negetive flag
+        if (x & (1<<7) != 0) {
+            flags = flags | (1<<1);
+        } else {
+            flags = flags & (~(1<<1));
+        }
     }
 
     // OPCodes Starts here, the definitions of all the opcodes
+
 
     //ORA
     void CPU::ora_indirect_x(const MemoryUnit &r) {
@@ -158,6 +181,109 @@ namespace NES
         uint16_t addr = (alpha|(beta<<8));
         addr += regX;
         regAcc = regAcc|r.getByteAt(addr);
+        changeFlags();
+    }
+
+    // AND
+    void CPU::and_indirect_x(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Indirect Reg-X addressing
+        // PC += 2
+
+        instPtr++;
+        uint16_t alpha = regX, beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint8_t addr = ((alpha+beta)&0xFF);
+        uint8_t kapa = r.getByteAt(addr), napa = r.getByteAt(addr+1);
+        uint16_t finalAddr = (kapa | (napa << 8));
+        regAcc = regAcc&r.getByteAt(finalAddr);
+        changeFlags();
+    }
+    
+    void CPU::and_zeropg(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Zero Page Addressing
+        // PC += 2
+
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        regAcc = regAcc&r.getByteAt(alpha);
+        changeFlags();
+    }
+    
+    void CPU::and_immediate(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Immediate addressing
+        // PC += 2
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        regAcc = regAcc&alpha;
+        changeFlags();
+    }
+
+    void CPU::and_absolute(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Absolute addressing
+        // PC += 3
+
+        instPtr++;
+        uint16_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t addr = (alpha|(beta<<8));
+        regAcc = regAcc&r.getByteAt(addr);
+        changeFlags();
+    }
+
+    void CPU::and_indirect_y(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Zero Page Y indexed
+        // PC += 2
+
+        instPtr++;
+        uint16_t alpha = regY, beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t kapa = r.getByteAt(beta), napa = r.getByteAt((beta+1)%256);
+        uint16_t addr = kapa|(napa<<8);
+        regAcc = regAcc&r.getByteAt(addr+alpha);
+        changeFlags();
+    }
+
+    void CPU::and_zeropg_x(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Zero Page X Indexed
+        // PC += 2
+
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr), beta = regX;
+        instPtr++;
+        uint16_t addr = (alpha + regX)%256;
+        regAcc = regAcc&r.getByteAt(addr);
+        changeFlags();
+    }
+
+    void CPU::and_absolute_y(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Absolute addressing indexed Y
+        // PC += 3
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint8_t beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t addr = (alpha|(beta<<8));
+        addr += regY;
+        regAcc = regAcc&r.getByteAt(addr);
+        changeFlags();
+    }
+
+    void CPU::and_absolute_x(const MemoryUnit &r) {
+        // Bitwise AND with Accumulator: Absolute addressing indexed X
+        // PC += 3
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint8_t beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t addr = (alpha|(beta<<8));
+        addr += regX;
+        regAcc = regAcc&r.getByteAt(addr);
         changeFlags();
     }
 

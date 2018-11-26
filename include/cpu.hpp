@@ -43,10 +43,13 @@ class CPU {
         uint8_t makeOpCode(uint8_t a, uint8_t b, uint8_t c) const;
         bool opcodeNotAvailable(uint8_t opcode);
         void insertOpcode(uint8_t opcode, opcodeFun, const string &);
+        // Flags Structure: -----NZ
         void changeFlags();
 
 
         // Functions of CPU
+
+        // ORA
         void ora_indirect_x(const MemoryUnit &); //000-000-01
         void ora_zeropg(const MemoryUnit &); //000-001-01
         void ora_immediate(const MemoryUnit &); //000-010-01
@@ -56,24 +59,38 @@ class CPU {
         void ora_absolute_y(const MemoryUnit &r); //000-110-01
         void ora_absolute_x(const MemoryUnit &r); //000-111-01
 
+        //AND
+        void and_indirect_x(const MemoryUnit &); //001-000-01
+        void and_zeropg(const MemoryUnit &); //001-001-01
+        void and_immediate(const MemoryUnit &); //001-010-01
+        void and_absolute(const MemoryUnit &); //001-011-01
+        void and_indirect_y(const MemoryUnit &); //001-100-01
+        void and_zeropg_x(const MemoryUnit &r); //001-101-01
+        void and_absolute_y(const MemoryUnit &r); //001-110-01
+        void and_absolute_x(const MemoryUnit &r); //001-111-01
+
+
 
     public:
         CPU();
         ~CPU();
         bool executeInstruction(const MemoryUnit &);
         uint8_t getOpcode(const string &) const;
-        
+
         inline uint8_t getAccumulator() const { return regAcc; }
         inline uint8_t getRegX() const { return regX; }
         inline uint8_t getRegY() const { return regY; }
-        inline uint8_t getFlags() const { return flags; }
         inline uint16_t getInstPtr() const { return instPtr; }
         inline uint16_t getStackPtr() const { return stackPtr; }
+        inline uint8_t getFlags() const { return flags; }
 
         inline void setInstPtr(uint16_t x) { instPtr = x; }
         inline void setRegX(uint8_t x) { regX = x; }
         inline void setRegY(uint8_t x) { regY = x; }
+        inline void setAccumulator(uint8_t x) { regAcc = x;changeFlags(); }
 
+        inline uint8_t getZeroFlag() const { return (flags&1)==0?0:1; }
+        inline uint8_t getNegetive() const { return (flags & (1<<1))==0?0:1; }
 
 };
 
