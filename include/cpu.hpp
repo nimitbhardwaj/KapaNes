@@ -40,7 +40,6 @@ class CPU {
         unordered_set<uint8_t> opcodeBag;
         unordered_map<string, uint8_t> opcodeNameLookup;
 
-        uint8_t makeOpCode(uint8_t a, uint8_t b, uint8_t c) const;
         bool opcodeNotAvailable(uint8_t opcode);
         void insertOpcode(uint8_t opcode, opcodeFun, const string &);
         // Flags Structure: -----NZ
@@ -59,7 +58,7 @@ class CPU {
         void ora_absolute_y(const MemoryUnit &r); //000-110-01
         void ora_absolute_x(const MemoryUnit &r); //000-111-01
 
-        //AND
+        // AND
         void and_indirect_x(const MemoryUnit &); //001-000-01
         void and_zeropg(const MemoryUnit &); //001-001-01
         void and_immediate(const MemoryUnit &); //001-010-01
@@ -68,6 +67,16 @@ class CPU {
         void and_zeropg_x(const MemoryUnit &r); //001-101-01
         void and_absolute_y(const MemoryUnit &r); //001-110-01
         void and_absolute_x(const MemoryUnit &r); //001-111-01
+
+        // EOR
+        void eor_indirect_x(const MemoryUnit &); //010-000-01
+        void eor_zeropg(const MemoryUnit &); //010-001-01
+        void eor_immediate(const MemoryUnit &); //010-010-01
+        void eor_absolute(const MemoryUnit &); //010-011-01
+        void eor_indirect_y(const MemoryUnit &); //010-100-01
+        void eor_zeropg_x(const MemoryUnit &r); //010-101-01
+        void eor_absolute_y(const MemoryUnit &r); //010-110-01
+        void eor_absolute_x(const MemoryUnit &r); //010-111-01
 
 
 

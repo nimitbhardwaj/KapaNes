@@ -33,6 +33,15 @@ class CPUTest: public CppUnit::TestFixture {
         CPPUNIT_TEST( testAndZeroPgX );
         CPPUNIT_TEST( testAndAbsY );
         CPPUNIT_TEST( testAndAbsX );
+    // EOR
+        CPPUNIT_TEST( testEorIndX );
+        CPPUNIT_TEST( testEorZeroPg );
+        CPPUNIT_TEST( testEorImm );
+        CPPUNIT_TEST( testEorAbsolute );
+        CPPUNIT_TEST( testEorIndirectY );
+        CPPUNIT_TEST( testEorZeroPgX );
+        CPPUNIT_TEST( testEorAbsY );
+        CPPUNIT_TEST( testEorAbsX );
 
 
     CPPUNIT_TEST_SUITE_END();
@@ -70,6 +79,15 @@ class CPUTest: public CppUnit::TestFixture {
         void testAndZeroPgX();
         void testAndAbsY();
         void testAndAbsX();
+        //EOR
+        void testEorIndX();
+        void testEorZeroPg();
+        void testEorImm();
+        void testEorAbsolute();
+        void testEorIndirectY();
+        void testEorZeroPgX();
+        void testEorAbsY();
+        void testEorAbsX();
 
 };
 

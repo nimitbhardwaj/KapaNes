@@ -85,9 +85,9 @@ void CPUTest::testOraIndirectY() {
     cpu->setRegY(0x06);
     mem->setByteAt(0x24, 0x12);
     mem->setByteAt(0x25, 0x01);
-    mem->setByteAt(0x0118, 0b1100011);
+    mem->setByteAt(0x0118, 0b01100011);
     cpu->executeInstruction(*mem);
-    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b1100011);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b01100011);
 }
 
 void CPUTest::testOraZeroPgX() {
@@ -180,6 +180,7 @@ void CPUTest::testAndImm() {
     cpu->executeInstruction(*mem);
     CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10000000);
 }
+
 void CPUTest::testAndAbsolute() {
     cpu->setInstPtr(0x00);
     mem->setByteAt(0x00, 0b00101101);
@@ -205,10 +206,10 @@ void CPUTest::testAndIndirectY() {
     cpu->setRegY(0x06);
     mem->setByteAt(0x24, 0x12);
     mem->setByteAt(0x25, 0x01);
-    mem->setByteAt(0x0118, 0b1100011);
+    mem->setByteAt(0x0118, 0b01100011);
     cpu->setAccumulator(0xFF);
     cpu->executeInstruction(*mem);
-    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b1100011);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b01100011);
 }
 
 void CPUTest::testAndZeroPgX() {
@@ -252,3 +253,129 @@ void CPUTest::testAndAbsX() {
     cpu->executeInstruction(*mem);
     CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10010000);
 }
+
+// EOR
+void CPUTest::testEorIndX() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegX(0x04);
+    mem->setByteAt(0x00, 0b01000001);
+    mem->setByteAt(0x01, 0x20);
+    mem->setByteAt(0x24, 01);
+    mem->setByteAt(0x25, 02);
+    mem->setByteAt(0x0201, 0b11100101);
+    cpu->setAccumulator(0b11100000);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b00000101);
+    
+    cpu->setRegX(0x10);
+    mem->setByteAt(0x02, 0b01000001);
+    mem->setByteAt(0x03, 0xFF);
+    mem->setByteAt(0x0F, 0x11);
+    mem->setByteAt(0x10, 0x00);
+    mem->setByteAt(0x0011, 0b01111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b01111010);
+}
+
+void CPUTest::testEorZeroPg() {
+    cpu->setInstPtr(0x00);
+    mem->setByteAt(0x00, 0b01000101);
+    mem->setByteAt(0x01, 0x83);
+    mem->setByteAt(0x83, 0b11110110);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b00001001);
+
+    mem->setByteAt(0x02, 0b01000101);
+    mem->setByteAt(0x03, 0x8E);
+    mem->setByteAt(0x08E, 0b10110001);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10111000);
+}
+
+void CPUTest::testEorImm() {
+    mem->setByteAt(0x00, 0b01001001);
+    mem->setByteAt(0x01, 0b11110000);
+    mem->setByteAt(0x02, 0b01001001);
+    mem->setByteAt(0x03, 0b10000001);
+    cpu->setInstPtr(0x00);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b00001111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10001110);
+}
+
+void CPUTest::testEorAbsolute() {
+    cpu->setInstPtr(0x00);
+    mem->setByteAt(0x00, 0b01001101);
+    mem->setByteAt(0x01, 0x10);
+    mem->setByteAt(0x02, 0x02);
+    mem->setByteAt(0x0210, 0b01010101);
+    cpu->setAccumulator(0xFF);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10101010);
+
+    mem->setByteAt(0x03, 0b01001101);
+    mem->setByteAt(0x04, 0x11);
+    mem->setByteAt(0x05, 0x00);
+    mem->setByteAt(0x0011, 0b11110000);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b01011010);
+}
+
+void CPUTest::testEorIndirectY() {
+    cpu->setInstPtr(0x00);
+    mem->setByteAt(0x00, 0b01010001);
+    mem->setByteAt(0x01, 0x24);
+    cpu->setRegY(0x06);
+    mem->setByteAt(0x24, 0x12);
+    mem->setByteAt(0x25, 0x01);
+    mem->setByteAt(0x0118, 0b01100011);
+    cpu->setAccumulator(0xFF);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10011100);
+}
+
+void CPUTest::testEorZeroPgX() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegX(0x08);
+    mem->setByteAt(0x00, 0b01010101);
+    mem->setByteAt(0x01, 0x82);
+    mem->setByteAt(0x8A, 0b11100000);
+    cpu->setAccumulator(0b00100000);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b11000000);
+
+    mem->setByteAt(0x02, 0b01010101);
+    mem->setByteAt(0x03, 0xFF);
+    cpu->setRegX(0x11);
+    mem->setByteAt(0x10, 0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b00111111);
+}
+
+void CPUTest::testEorAbsY() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegY(0x03);
+    mem->setByteAt(0x00, 0b01011001);
+    mem->setByteAt(0x01, 0x11);
+    mem->setByteAt(0x02, 0x03);
+    mem->setByteAt(0x0314, 0b11110000);
+    cpu->setAccumulator(0b01111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10001111);
+}
+
+void CPUTest::testEorAbsX() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegX(0x03);
+    mem->setByteAt(0x00, 0b01011101);
+    mem->setByteAt(0x01, 0x11);
+    mem->setByteAt(0x02, 0x03);
+    mem->setByteAt(0x0314, 0b10010000);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b01101111);
+}
+
