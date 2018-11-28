@@ -16,8 +16,7 @@ namespace NES
     InvalidOpcodeException(uint8_t x)
         :opCode(x) {}
         virtual const char *what() throw() {
-            std::string S = "Invalid OpCode: Unknown Opcode "+std::to_string(int(opCode));
-            return S.c_str();
+            return "Invalid OpCode";
         } 
 };
 

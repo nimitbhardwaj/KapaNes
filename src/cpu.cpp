@@ -41,7 +41,16 @@ namespace NES
         insertOpcode(0b01011001, &CPU::eor_absolute_y, "EOR_ABS_Y");
         insertOpcode(0b01011101, &CPU::eor_absolute_x, "EOR_ABS_X");
 
-           
+        // ADC
+        insertOpcode(0b01100001, &CPU::adc_indirect_x, "ADC_IND_X");
+        insertOpcode(0b01100101, &CPU::adc_zeropg, "ADC_ZEROPG");
+        insertOpcode(0b01101001, &CPU::adc_immediate, "ADC_IMM");
+        insertOpcode(0b01101101, &CPU::adc_absolute, "ADC_ABS");
+        insertOpcode(0b01110001, &CPU::adc_indirect_y, "ADC_IND_Y");
+        insertOpcode(0b01110101, &CPU::adc_zeropg_x, "ADC_ZEROPG_X");
+        insertOpcode(0b01111001, &CPU::adc_absolute_y, "ADC_ABS_Y");
+        insertOpcode(0b01111101, &CPU::adc_absolute_x, "ADC_ABS_X");
+
 
     }
 
@@ -67,7 +76,7 @@ namespace NES
         }
     }
 
-    void CPU::changeFlags() {
+    void CPU::changeFlags(uint8_t carry, uint8_t overflow) {
         const uint8_t x = regAcc;
         // ZeroFlag
         if (x == 0) {
@@ -81,6 +90,19 @@ namespace NES
             flags = flags | (1<<1);
         } else {
             flags = flags & (~(1<<1));
+        }
+
+        // Carry Flag
+        if (carry == 0) {
+            flags = flags & (~(1<<2));
+        } else if (carry == 1){
+            flags = flags | (1<<2);
+        }
+        //
+        if (overflow == 0) {
+            flags = flags & (~(1<<3));
+        } else if(overflow == 1) {
+            flags = flags | (1<<3);
         }
     }
 
@@ -370,7 +392,7 @@ namespace NES
     }
 
     void CPU::eor_absolute_y(const MemoryUnit &r) {
-        // Bitwise AND with Accumulator: Absolute addressing indexed Y
+        // Bitwise Exclusive with Accumulator: Absolute addressing indexed Y
         // PC += 3
         instPtr++;
         uint8_t alpha = r.getByteAt(instPtr);
@@ -397,6 +419,166 @@ namespace NES
         changeFlags();
     }
 
+    // ADC
+    void CPU::adc_indirect_x(const MemoryUnit &r) {
+        // Add to the Accumulator: Indirect Reg-X addressing
+        // PC += 2
+
+        instPtr++;
+        uint16_t alpha = regX, beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint8_t addr = ((alpha+beta)&0xFF);
+        uint8_t kapa = r.getByteAt(addr), napa = r.getByteAt(addr+1);
+        uint16_t finalAddr = (kapa | (napa << 8));
+        uint8_t m=regAcc, n=r.getByteAt(finalAddr), res;
+
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(n)+\
+                        uint16_t(getCarryFlag());
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+    }
+    
+    void CPU::adc_zeropg(const MemoryUnit &r) {
+        // Add to the Accumulator: Zero Page Addressing
+        // PC += 2
+
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint8_t m=regAcc, n=r.getByteAt(alpha), res;
+
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(n)+\
+                        uint16_t(getCarryFlag());
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+    }
+    
+    void CPU::adc_immediate(const MemoryUnit &r) {
+        // Add to Accumulator: Immediate addressing
+        // PC += 2
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(alpha)+\
+                        uint16_t(getCarryFlag());
+        uint8_t m=regAcc, n=alpha, res;
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+    }
+
+    void CPU::adc_absolute(const MemoryUnit &r) {
+        // Add to the Accumulator: Absolute addressing
+        // PC += 3
+
+        instPtr++;
+        uint16_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t addr = (alpha|(beta<<8));
+        uint8_t m=regAcc, n=r.getByteAt(addr), res;
+
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(n)+\
+                        uint16_t(getCarryFlag());
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+    }
+
+    void CPU::adc_indirect_y(const MemoryUnit &r) {
+        // Add to Accumulator: Zero Page Y indexed
+        // PC += 2
+
+        instPtr++;
+        uint16_t alpha = regY, beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t kapa = r.getByteAt(beta), napa = r.getByteAt((beta+1)%256);
+        uint16_t addr = kapa|(napa<<8);
+        uint8_t m=regAcc, n=r.getByteAt(addr+alpha), res;
+
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(n)+\
+                        uint16_t(getCarryFlag());
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+    }
+
+    void CPU::adc_zeropg_x(const MemoryUnit &r) {
+        // Add to the Accumulator: Zero Page X Indexed
+        // PC += 2
+
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr), beta = regX;
+        instPtr++;
+        uint16_t addr = (alpha + regX)%256;
+        uint8_t m=regAcc, n=r.getByteAt(addr), res;
+
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(n)+\
+                        uint16_t(getCarryFlag());
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+
+    }
+
+    void CPU::adc_absolute_y(const MemoryUnit &r) {
+        // Add to the Accumulator: Absolute addressing indexed Y
+        // PC += 3
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint8_t beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t addr = (alpha|(beta<<8));
+        addr += regY;
+        uint8_t m=regAcc, n=r.getByteAt(addr), res;
+
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(n)+\
+                        uint16_t(getCarryFlag());
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+
+    }
+
+    void CPU::adc_absolute_x(const MemoryUnit &r) {
+        // Add to the Accumulator: Absolute addressing indexed X
+        // PC += 3
+        instPtr++;
+        uint8_t alpha = r.getByteAt(instPtr);
+        instPtr++;
+        uint8_t beta = r.getByteAt(instPtr);
+        instPtr++;
+        uint16_t addr = (alpha|(beta<<8));
+        addr += regX;
+        uint8_t m=regAcc, n=r.getByteAt(addr), res;
+
+        uint16_t zeta = uint16_t(regAcc)+uint16_t(n)+\
+                        uint16_t(getCarryFlag());
+        regAcc = zeta%256;
+        res = regAcc;
+        uint8_t overflow=!((m^n)&0x80)&&((m^res)&0x80), carry=0;
+        carry = zeta/256;
+        changeFlags(carry, overflow);
+    }
+
 
     // publics
     bool CPU::executeInstruction(const MemoryUnit &r) {
@@ -408,8 +590,8 @@ namespace NES
             (this->*fun)(r);
             return true;
         } catch (InvalidOpcodeException &e) {
-            printf("Warning: %s\n", e.what());
-            return false;
+            printf("Warning: %s: %u\n", e.what(), opcode);
+            throw e;
         }
     }
 

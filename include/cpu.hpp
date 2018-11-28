@@ -42,8 +42,8 @@ class CPU {
 
         bool opcodeNotAvailable(uint8_t opcode);
         void insertOpcode(uint8_t opcode, opcodeFun, const string &);
-        // Flags Structure: -----NZ
-        void changeFlags();
+        // Flags Structure: ----VCNZ
+        void changeFlags(uint8_t carry = -1, uint8_t overflow=-1);
 
 
         // Functions of CPU
@@ -78,6 +78,17 @@ class CPU {
         void eor_absolute_y(const MemoryUnit &r); //010-110-01
         void eor_absolute_x(const MemoryUnit &r); //010-111-01
 
+        // ADC
+        void adc_indirect_x(const MemoryUnit &); //011-000-01
+        void adc_zeropg(const MemoryUnit &); //011-001-01
+        void adc_immediate(const MemoryUnit &); //011-010-01
+        void adc_absolute(const MemoryUnit &); //011-011-01
+        void adc_indirect_y(const MemoryUnit &); //011-100-01
+        void adc_zeropg_x(const MemoryUnit &r); //011-101-01
+        void adc_absolute_y(const MemoryUnit &r); //011-110-01
+        void adc_absolute_x(const MemoryUnit &r); //011-111-01
+
+
 
 
     public:
@@ -100,6 +111,8 @@ class CPU {
 
         inline uint8_t getZeroFlag() const { return (flags&1)==0?0:1; }
         inline uint8_t getNegetive() const { return (flags & (1<<1))==0?0:1; }
+        inline uint8_t getCarryFlag() const { return (flags & (1<<2))==0?0:1; }
+        inline uint8_t getOverflowFlag() const { return (flags & (1<<3))==0?0:1; }
 
 };
 
