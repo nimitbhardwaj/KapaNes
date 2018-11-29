@@ -31,7 +31,7 @@ class CPU {
      * Each bit having some specific significance
     */
     private:
-        typedef void (CPU::*opcodeFun)(const MemoryUnit &);
+        typedef void (CPU::*opcodeFun)(MemoryUnit &);
         typedef unordered_map<uint8_t, opcodeFun> opcodeMap;
 
         uint8_t regAcc, regX, regY, flags;
@@ -49,44 +49,55 @@ class CPU {
         // Functions of CPU
 
         // ORA
-        void ora_indirect_x(const MemoryUnit &); //000-000-01
-        void ora_zeropg(const MemoryUnit &); //000-001-01
-        void ora_immediate(const MemoryUnit &); //000-010-01
-        void ora_absolute(const MemoryUnit &); //000-011-01
-        void ora_indirect_y(const MemoryUnit &); //000-100-01
-        void ora_zeropg_x(const MemoryUnit &r); //000-101-01
-        void ora_absolute_y(const MemoryUnit &r); //000-110-01
-        void ora_absolute_x(const MemoryUnit &r); //000-111-01
+        void ora_indirect_x(MemoryUnit &); //000-000-01
+        void ora_zeropg(MemoryUnit &); //000-001-01
+        void ora_immediate(MemoryUnit &); //000-010-01
+        void ora_absolute(MemoryUnit &); //000-011-01
+        void ora_indirect_y(MemoryUnit &); //000-100-01
+        void ora_zeropg_x(MemoryUnit &r); //000-101-01
+        void ora_absolute_y(MemoryUnit &r); //000-110-01
+        void ora_absolute_x(MemoryUnit &r); //000-111-01
 
         // AND
-        void and_indirect_x(const MemoryUnit &); //001-000-01
-        void and_zeropg(const MemoryUnit &); //001-001-01
-        void and_immediate(const MemoryUnit &); //001-010-01
-        void and_absolute(const MemoryUnit &); //001-011-01
-        void and_indirect_y(const MemoryUnit &); //001-100-01
-        void and_zeropg_x(const MemoryUnit &r); //001-101-01
-        void and_absolute_y(const MemoryUnit &r); //001-110-01
-        void and_absolute_x(const MemoryUnit &r); //001-111-01
+        void and_indirect_x(MemoryUnit &); //001-000-01
+        void and_zeropg(MemoryUnit &); //001-001-01
+        void and_immediate(MemoryUnit &); //001-010-01
+        void and_absolute(MemoryUnit &); //001-011-01
+        void and_indirect_y(MemoryUnit &); //001-100-01
+        void and_zeropg_x(MemoryUnit &r); //001-101-01
+        void and_absolute_y(MemoryUnit &r); //001-110-01
+        void and_absolute_x(MemoryUnit &r); //001-111-01
 
         // EOR
-        void eor_indirect_x(const MemoryUnit &); //010-000-01
-        void eor_zeropg(const MemoryUnit &); //010-001-01
-        void eor_immediate(const MemoryUnit &); //010-010-01
-        void eor_absolute(const MemoryUnit &); //010-011-01
-        void eor_indirect_y(const MemoryUnit &); //010-100-01
-        void eor_zeropg_x(const MemoryUnit &r); //010-101-01
-        void eor_absolute_y(const MemoryUnit &r); //010-110-01
-        void eor_absolute_x(const MemoryUnit &r); //010-111-01
+        void eor_indirect_x(MemoryUnit &); //010-000-01
+        void eor_zeropg(MemoryUnit &); //010-001-01
+        void eor_immediate(MemoryUnit &); //010-010-01
+        void eor_absolute(MemoryUnit &); //010-011-01
+        void eor_indirect_y(MemoryUnit &); //010-100-01
+        void eor_zeropg_x(MemoryUnit &r); //010-101-01
+        void eor_absolute_y(MemoryUnit &r); //010-110-01
+        void eor_absolute_x(MemoryUnit &r); //010-111-01
 
         // ADC
-        void adc_indirect_x(const MemoryUnit &); //011-000-01
-        void adc_zeropg(const MemoryUnit &); //011-001-01
-        void adc_immediate(const MemoryUnit &); //011-010-01
-        void adc_absolute(const MemoryUnit &); //011-011-01
-        void adc_indirect_y(const MemoryUnit &); //011-100-01
-        void adc_zeropg_x(const MemoryUnit &r); //011-101-01
-        void adc_absolute_y(const MemoryUnit &r); //011-110-01
-        void adc_absolute_x(const MemoryUnit &r); //011-111-01
+        void adc_indirect_x(MemoryUnit &); //011-000-01
+        void adc_zeropg(MemoryUnit &); //011-001-01
+        void adc_immediate(MemoryUnit &); //011-010-01
+        void adc_absolute(MemoryUnit &); //011-011-01
+        void adc_indirect_y(MemoryUnit &); //011-100-01
+        void adc_zeropg_x(MemoryUnit &r); //011-101-01
+        void adc_absolute_y(MemoryUnit &r); //011-110-01
+        void adc_absolute_x(MemoryUnit &r); //011-111-01
+
+        // STA
+        void sta_indirect_x(MemoryUnit &); //100-000-01
+        void sta_zeropg(MemoryUnit &); //100-001-01
+        void sta_immediate(MemoryUnit &); //100-010-01
+        void sta_absolute(MemoryUnit &); //100-011-01
+        void sta_indirect_y(MemoryUnit &); //100-100-01
+        void sta_zeropg_x(MemoryUnit &r); //100-101-01
+        void sta_absolute_y(MemoryUnit &r); //100-110-01
+        void sta_absolute_x(MemoryUnit &r); //100-111-01
+
 
 
 
@@ -94,7 +105,7 @@ class CPU {
     public:
         CPU();
         ~CPU();
-        bool executeInstruction(const MemoryUnit &);
+        bool executeInstruction(MemoryUnit &);
         uint8_t getOpcode(const string &) const;
 
         inline uint8_t getAccumulator() const { return regAcc; }

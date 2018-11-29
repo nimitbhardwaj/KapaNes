@@ -51,8 +51,15 @@ class CPUTest: public CppUnit::TestFixture {
         CPPUNIT_TEST( testAdcZeroPgX );
         CPPUNIT_TEST( testAdcAbsY );
         CPPUNIT_TEST( testAdcAbsX );
-
-
+    // STA
+        CPPUNIT_TEST( testStaIndX );
+        CPPUNIT_TEST( testStaZeroPg );
+        CPPUNIT_TEST( testStaImm );
+        CPPUNIT_TEST( testStaAbsolute );
+        CPPUNIT_TEST( testStaIndirectY );
+        CPPUNIT_TEST( testStaZeroPgX );
+        CPPUNIT_TEST( testStaAbsY );
+        CPPUNIT_TEST( testStaAbsX );
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -107,6 +114,16 @@ class CPUTest: public CppUnit::TestFixture {
         void testAdcZeroPgX();
         void testAdcAbsY();
         void testAdcAbsX();
+        //ADC
+        void testStaIndX();
+        void testStaZeroPg();
+        void testStaImm();
+        void testStaAbsolute();
+        void testStaIndirectY();
+        void testStaZeroPgX();
+        void testStaAbsY();
+        void testStaAbsX();
+
 
 
 };
