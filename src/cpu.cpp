@@ -61,6 +61,17 @@ CPU::CPU() {
     insertOpcode(0b10010101, &CPU::sta_zeropg_x, "STA_ZEROPG_X");
     insertOpcode(0b10011001, &CPU::sta_absolute_y, "STA_ABS_Y");
     insertOpcode(0b10011101, &CPU::sta_absolute_x, "STA_ABS_X");
+    
+    // LDA
+    insertOpcode(0b10100001, &CPU::lda_indirect_x, "LDA_IND_X");
+    insertOpcode(0b10100101, &CPU::lda_zeropg, "LDA_ZEROPG");
+    insertOpcode(0b10101001, &CPU::lda_immediate, "LDA_IMM");
+    insertOpcode(0b10101101, &CPU::lda_absolute, "LDA_ABS");
+    insertOpcode(0b10110001, &CPU::lda_indirect_y, "LDA_IND_Y");
+    insertOpcode(0b10110101, &CPU::lda_zeropg_x, "LDA_ZEROPG_X");
+    insertOpcode(0b10111001, &CPU::lda_absolute_y, "LDA_ABS_Y");
+    insertOpcode(0b10111101, &CPU::lda_absolute_x, "LDA_ABS_X");
+
 }
 
 // Destructor
@@ -677,6 +688,109 @@ void CPU::sta_absolute_x(MemoryUnit &r) {
     uint16_t addr = (alpha|(beta<<8));
     addr += regX;
     r.setByteAt(addr, regAcc);
+}
+
+// LDA
+void CPU::lda_indirect_x(MemoryUnit &r) {
+    // Load Accumulator: Indirect Reg-X addressing
+    // PC += 2
+
+    instPtr++;
+    uint16_t alpha = regX, beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t addr = ((alpha+beta)&0xFF);
+    uint8_t kapa = r.getByteAt(addr), napa = r.getByteAt(addr+1);
+    uint16_t finalAddr = (kapa | (napa << 8));
+    regAcc = r.getByteAt(finalAddr);
+    changeFlags();
+}
+
+void CPU::lda_zeropg(MemoryUnit &r) {
+    // Load Accumulator: Zero Page Addressing
+    // PC += 2
+
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    regAcc = r.getByteAt(alpha);
+    changeFlags();
+}
+
+void CPU::lda_immediate(MemoryUnit &r) {
+    // Load Accumulator: Immediate addressing
+    // PC += 2
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    regAcc = alpha;
+    changeFlags();
+}
+
+void CPU::lda_absolute(MemoryUnit &r) {
+    // Load Accumulator: Absolute addressing
+    // PC += 3
+
+    instPtr++;
+    uint16_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (alpha|(beta<<8));
+    regAcc = r.getByteAt(addr);
+    changeFlags();
+}
+
+void CPU::lda_indirect_y(MemoryUnit &r) {
+    // Load Accumulator: Zero Page Y indexed
+    // PC += 2
+
+    instPtr++;
+    uint16_t alpha = regY, beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t kapa = r.getByteAt(beta), napa = r.getByteAt((beta+1)%256);
+    uint16_t addr = kapa|(napa<<8);
+    regAcc = r.getByteAt(addr+alpha);
+    changeFlags();
+}
+
+void CPU::lda_zeropg_x(MemoryUnit &r) {
+    // Load Accumulator: Zero Page X Indexed
+    // PC += 2
+
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr), beta = regX;
+    instPtr++;
+    uint16_t addr = (alpha + regX)%256;
+    regAcc = r.getByteAt(addr);
+    changeFlags();
+}
+
+void CPU::lda_absolute_y(MemoryUnit &r) {
+    // Load Accumulator: Absolute addressing indexed Y
+    // PC += 3
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (alpha|(beta<<8));
+    addr += regY;
+    regAcc = r.getByteAt(addr);
+    changeFlags();
+}
+
+void CPU::lda_absolute_x(MemoryUnit &r) {
+    // Load Accumulator: Absolute addressing indexed X
+    // PC += 3
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (alpha|(beta<<8));
+    addr += regX;
+    regAcc = r.getByteAt(addr);
+    changeFlags();
 }
 
 // publics

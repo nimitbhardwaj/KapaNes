@@ -98,9 +98,15 @@ class CPU {
         void sta_absolute_y(MemoryUnit &r); //100-110-01
         void sta_absolute_x(MemoryUnit &r); //100-111-01
 
-
-
-
+        // LDA
+        void lda_indirect_x(MemoryUnit &); //101-000-01
+        void lda_zeropg(MemoryUnit &); //101-001-01
+        void lda_immediate(MemoryUnit &); //101-010-01
+        void lda_absolute(MemoryUnit &); //101-011-01
+        void lda_indirect_y(MemoryUnit &); //101-100-01
+        void lda_zeropg_x(MemoryUnit &r); //101-101-01
+        void lda_absolute_y(MemoryUnit &r); //101-110-01
+        void lda_absolute_x(MemoryUnit &r); //101-111-01
 
     public:
         CPU();
