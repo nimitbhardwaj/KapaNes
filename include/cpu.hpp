@@ -107,6 +107,17 @@ class CPU {
         void lda_zeropg_x(MemoryUnit &r); //101-101-01
         void lda_absolute_y(MemoryUnit &r); //101-110-01
         void lda_absolute_x(MemoryUnit &r); //101-111-01
+        
+        // CMP
+        void cmp_indirect_x(MemoryUnit &); //110-000-01
+        void cmp_zeropg(MemoryUnit &); //110-001-01
+        void cmp_immediate(MemoryUnit &); //110-010-01
+        void cmp_absolute(MemoryUnit &); //110-011-01
+        void cmp_indirect_y(MemoryUnit &); //110-100-01
+        void cmp_zeropg_x(MemoryUnit &r); //110-101-01
+        void cmp_absolute_y(MemoryUnit &r); //110-110-01
+        void cmp_absolute_x(MemoryUnit &r); //110-111-01
+
 
     public:
         CPU();
@@ -127,9 +138,15 @@ class CPU {
         inline void setAccumulator(uint8_t x) { regAcc = x;changeFlags(); }
 
         inline uint8_t getZeroFlag() const { return (flags&1)==0?0:1; }
-        inline uint8_t getNegetive() const { return (flags & (1<<1))==0?0:1; }
+        inline uint8_t getNegetiveFlag() const { return (flags & (1<<1))==0?0:1; }
         inline uint8_t getCarryFlag() const { return (flags & (1<<2))==0?0:1; }
         inline uint8_t getOverflowFlag() const { return (flags & (1<<3))==0?0:1; }
+
+        inline void setZeroFlag(uint8_t x) {flags=(x==0)?(flags&(~(1<<0))):(flags|(1<<0));}
+        inline void setNegetiveFlag(uint8_t x) {flags=(x==0)?(flags&(~(1<<1))):(flags|(1<<1));}
+        inline void setCarryFlag(uint8_t x) {flags=(x==0)?(flags&(~(1<<2))):(flags|(1<<2));}
+        inline void setOverflowFlag(uint8_t x) {flags=(x==0)?(flags&(~(1<<3))):(flags|(1<<3));}
+
 
 };
 

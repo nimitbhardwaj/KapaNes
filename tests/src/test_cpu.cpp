@@ -5,10 +5,10 @@ void CPUTest::testFlags() {
     // Zero and Negetive flag
     cpu->setAccumulator(0x00);
     CPPUNIT_ASSERT(cpu->getZeroFlag() == 1);
-    CPPUNIT_ASSERT(cpu->getNegetive() == 0);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
     cpu->setAccumulator(0xFF);
     CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
-    CPPUNIT_ASSERT(cpu->getNegetive() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 1);
     // Carry and Overflow Flag
     cpu->setAccumulator(0x01);
     cpu->setInstPtr(0x00);
@@ -805,5 +805,22 @@ void CPUTest::testLdaAbsX() {
     cpu->setAccumulator(0b11111111);
     cpu->executeInstruction(*mem);
     CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10010000);
+}
+
+// CMP
+
+void CPUTest::testCmpImm() {
+    // Was Here
+    CPPUNIT_ASSERT(true);
+    // mem->setByteAt(0x00, 0b11001001);
+    // mem->setByteAt(0x01, 0b11110000);
+    // mem->setByteAt(0x02, 0b11001001);
+    // mem->setByteAt(0x03, 0b10000001);
+    // cpu->setInstPtr(0x00);
+    // cpu->setAccumulator(0b11111111);
+    // cpu->executeInstruction(*mem);
+    // CPPUNIT_ASSERT(cpu->getAccumulator() == 0b11110000);
+    // cpu->executeInstruction(*mem);
+    // CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10000001);
 }
 

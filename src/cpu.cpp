@@ -71,6 +71,17 @@ CPU::CPU() {
     insertOpcode(0b10110101, &CPU::lda_zeropg_x, "LDA_ZEROPG_X");
     insertOpcode(0b10111001, &CPU::lda_absolute_y, "LDA_ABS_Y");
     insertOpcode(0b10111101, &CPU::lda_absolute_x, "LDA_ABS_X");
+    
+    // CMP
+    insertOpcode(0b11000001, &CPU::cmp_indirect_x, "CMP_IND_X");
+    insertOpcode(0b11000101, &CPU::cmp_zeropg, "CMP_ZEROPG");
+    insertOpcode(0b11001001, &CPU::cmp_immediate, "CMP_IMM");
+    insertOpcode(0b11001101, &CPU::cmp_absolute, "CMP_ABS");
+    insertOpcode(0b11010001, &CPU::cmp_indirect_y, "CMP_IND_Y");
+    insertOpcode(0b11010101, &CPU::cmp_zeropg_x, "CMP_ZEROPG_X");
+    insertOpcode(0b11011001, &CPU::cmp_absolute_y, "CMP_ABS_Y");
+    insertOpcode(0b11011101, &CPU::cmp_absolute_x, "CMP_ABS_X");
+
 
 }
 
@@ -791,6 +802,244 @@ void CPU::lda_absolute_x(MemoryUnit &r) {
     addr += regX;
     regAcc = r.getByteAt(addr);
     changeFlags();
+}
+
+// CMP
+void CPU::cmp_indirect_x(MemoryUnit &r) {
+    // Compare Accumulator and Memory: Indirect X
+    // PC += 2
+    instPtr++;
+    uint16_t alpha = regX, beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t addr = ((alpha+beta)&0xFF);
+    uint8_t kapa = r.getByteAt(addr), napa = r.getByteAt(addr+1);
+    uint16_t finalAddr = (kapa | (napa << 8));
+    uint8_t val = regAcc-r.getByteAt(finalAddr);
+    
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
+}
+
+void CPU::cmp_zeropg(MemoryUnit &r) {
+    // Compare Accumulator: Zero Page Addressing
+    // PC += 2
+
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t val = regAcc-r.getByteAt(alpha);
+    
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
+}
+
+void CPU::cmp_immediate(MemoryUnit &r) {
+    // Compare: Immediate addressing
+    // PC += 2
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t val = regAcc-alpha;
+    
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
+}
+
+void CPU::cmp_absolute(MemoryUnit &r) {
+    // Compare Accumulator: Absolute addressing
+    // PC += 3
+
+    instPtr++;
+    uint16_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (alpha|(beta<<8));
+    uint8_t val = regAcc-r.getByteAt(addr);
+    
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
+}
+
+void CPU::cmp_indirect_y(MemoryUnit &r) {
+    // Compare Accumulator: Zero Page Y indexed
+    // PC += 2
+
+    instPtr++;
+    uint16_t alpha = regY, beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t kapa = r.getByteAt(beta), napa = r.getByteAt((beta+1)%256);
+    uint16_t addr = kapa|(napa<<8);
+    uint8_t val = regAcc-r.getByteAt(addr+alpha);
+
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
+}
+
+void CPU::cmp_zeropg_x(MemoryUnit &r) {
+    // Compare Accumulator: Zero Page X Indexed
+    // PC += 2
+
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr), beta = regX;
+    instPtr++;
+    uint16_t addr = (alpha + regX)%256;
+    uint8_t val = regAcc-r.getByteAt(addr);
+
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
+}
+
+void CPU::cmp_absolute_y(MemoryUnit &r) {
+    // Compare Accumulator: Absolute addressing indexed Y
+    // PC += 3
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (alpha|(beta<<8));
+    addr += regY;
+    uint8_t val = regAcc-r.getByteAt(addr);
+
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
+}
+
+void CPU::cmp_absolute_x(MemoryUnit &r) {
+    // Compare Accumulator: Absolute addressing indexed X
+    // PC += 3
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (alpha|(beta<<8));
+    addr += regX;
+    uint8_t val = regAcc-r.getByteAt(addr);
+
+    if (val&(1<<7)) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+
+    if (val < 0x100) {
+        setCarryFlag(1);
+    } else {
+        setCarryFlag(0);
+    }
+
+    if (val == 0) {
+        setZeroFlag(1);
+    } else {
+        setZeroFlag(0);
+    }
 }
 
 // publics

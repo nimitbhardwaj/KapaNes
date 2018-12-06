@@ -69,6 +69,15 @@ class CPUTest: public CppUnit::TestFixture {
         CPPUNIT_TEST( testLdaZeroPgX );
         CPPUNIT_TEST( testLdaAbsY );
         CPPUNIT_TEST( testLdaAbsX );
+    // LDA
+        // CPPUNIT_TEST( testCmpIndX );
+        // CPPUNIT_TEST( testCmpZeroPg );
+        CPPUNIT_TEST( testCmpImm );
+        // CPPUNIT_TEST( testCmpAbsolute );
+        // CPPUNIT_TEST( testCmpIndirectY );
+        // CPPUNIT_TEST( testCmpZeroPgX );
+        // CPPUNIT_TEST( testCmpAbsY );
+        // CPPUNIT_TEST( testCmpAbsX );
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -141,9 +150,15 @@ class CPUTest: public CppUnit::TestFixture {
         void testLdaZeroPgX();
         void testLdaAbsY();
         void testLdaAbsX();
-
-
-
+        //CMP
+        void testCmpIndX();
+        void testCmpZeroPg();
+        void testCmpImm();
+        void testCmpAbsolute();
+        void testCmpIndirectY();
+        void testCmpZeroPgX();
+        void testCmpAbsY();
+        void testCmpAbsX();
 
 };
 
