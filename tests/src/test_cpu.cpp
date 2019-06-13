@@ -809,18 +809,172 @@ void CPUTest::testLdaAbsX() {
 
 // CMP
 
-void CPUTest::testCmpImm() {
-    // Was Here
-    CPPUNIT_ASSERT(true);
-    // mem->setByteAt(0x00, 0b11001001);
-    // mem->setByteAt(0x01, 0b11110000);
-    // mem->setByteAt(0x02, 0b11001001);
-    // mem->setByteAt(0x03, 0b10000001);
-    // cpu->setInstPtr(0x00);
-    // cpu->setAccumulator(0b11111111);
-    // cpu->executeInstruction(*mem);
-    // CPPUNIT_ASSERT(cpu->getAccumulator() == 0b11110000);
-    // cpu->executeInstruction(*mem);
-    // CPPUNIT_ASSERT(cpu->getAccumulator() == 0b10000001);
+void CPUTest::testCmpIndX() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegX(0x04);
+    mem->setByteAt(0x00, 0b11000001);
+    mem->setByteAt(0x01, 0x20);
+    mem->setByteAt(0x24, 01);
+    mem->setByteAt(0x25, 02);
+    mem->setByteAt(0x0201, 0b11110000);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b11111111);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+    cpu->setAccumulator(0x30);
+
+    cpu->setRegX(0x10);
+    mem->setByteAt(0x02, 0b11000001);
+    mem->setByteAt(0x03, 0xFF);
+    mem->setByteAt(0x0F, 0x11);
+    mem->setByteAt(0x10, 0x00);
+    mem->setByteAt(0x0011, 0x6A);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0x30);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+
 }
 
+void CPUTest::testCmpZeroPg() {
+    cpu->setInstPtr(0x00);
+    mem->setByteAt(0x00, 0b11000101);
+    mem->setByteAt(0x01, 0x83);
+    mem->setByteAt(0x83, 0b11110000);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b11111111);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+    cpu->setAccumulator(0x30);
+
+    mem->setByteAt(0x02, 0b11000101);
+    mem->setByteAt(0x03, 0x8E);
+    mem->setByteAt(0x08E, 0x6A);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0x30);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+}
+
+void CPUTest::testCmpImm() {
+    mem->setByteAt(0x00, 0b11001001);
+    mem->setByteAt(0x01, 0b11110000);
+    mem->setByteAt(0x02, 0b11001001);
+    mem->setByteAt(0x03, 0x6A);
+    cpu->setInstPtr(0x00);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0b11111111);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+    cpu->setAccumulator(0x30);
+
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0x30);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+}
+
+void CPUTest::testCmpAbsolute() {
+    cpu->setInstPtr(0x00);
+    mem->setByteAt(0x00, 0b11001101);
+    mem->setByteAt(0x01, 0x10);
+    mem->setByteAt(0x02, 0x02);
+    mem->setByteAt(0x0210, 0b11110000);
+    cpu->setAccumulator(0xFF);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0xFF);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+    cpu->setAccumulator(0x30);
+
+    mem->setByteAt(0x03, 0b11001101);
+    mem->setByteAt(0x04, 0x11);
+    mem->setByteAt(0x05, 0x00);
+    mem->setByteAt(0x0011, 0x6A);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0x30);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+}
+
+void CPUTest::testCmpIndirectY() {
+    cpu->setInstPtr(0x00);
+    mem->setByteAt(0x00, 0b11010001);
+    mem->setByteAt(0x01, 0x24);
+    cpu->setRegY(0x06);
+    mem->setByteAt(0x24, 0x12);
+    mem->setByteAt(0x25, 0x01);
+    mem->setByteAt(0x0118, 0b11110000);
+    cpu->setAccumulator(0xFF);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0xFF);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+}
+
+void CPUTest::testCmpZeroPgX() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegX(0x08);
+    mem->setByteAt(0x00, 0b11010101);
+    mem->setByteAt(0x01, 0x82);
+    mem->setByteAt(0x8A, 0b11110000);
+    cpu->setAccumulator(0xFF);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0xFF);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+    cpu->setAccumulator(0x30);
+
+    mem->setByteAt(0x02, 0b11010101);
+    mem->setByteAt(0x03, 0xFF);
+    cpu->setRegX(0x11);
+    mem->setByteAt(0x10, 0x6A);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0x30);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+}
+
+void CPUTest::testCmpAbsY() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegY(0x03);
+    mem->setByteAt(0x00, 0b11011001);
+    mem->setByteAt(0x01, 0x11);
+    mem->setByteAt(0x02, 0x03);
+    mem->setByteAt(0x0314, 0b11110000);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0xFF);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+}
+
+void CPUTest::testCmpAbsX() {
+    cpu->setInstPtr(0x00);
+    cpu->setRegX(0x03);
+    mem->setByteAt(0x00, 0b11011101);
+    mem->setByteAt(0x01, 0x11);
+    mem->setByteAt(0x02, 0x03);
+    mem->setByteAt(0x0314, 0b11110000);
+    cpu->setAccumulator(0b11111111);
+    cpu->executeInstruction(*mem);
+    CPPUNIT_ASSERT(cpu->getAccumulator() == 0xFF);
+    CPPUNIT_ASSERT(cpu->getCarryFlag() == 1);
+    CPPUNIT_ASSERT(cpu->getNegetiveFlag() == 0);
+    CPPUNIT_ASSERT(cpu->getZeroFlag() == 0);
+}

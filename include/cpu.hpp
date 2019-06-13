@@ -118,6 +118,36 @@ class CPU {
         void cmp_absolute_y(MemoryUnit &r); //110-110-01
         void cmp_absolute_x(MemoryUnit &r); //110-111-01
 
+        // SBC: Under Construction
+        void sbc_indirect_x(MemoryUnit &); //111-000-01
+        void sbc_zeropg(MemoryUnit &); //111-001-01
+        void sbc_immediate(MemoryUnit &); //111-010-01
+        void sbc_absolute(MemoryUnit &); //111-011-01
+        void sbc_indirect_y(MemoryUnit &); //111-100-01
+        void sbc_zeropg_x(MemoryUnit &r); //111-101-01
+        void sbc_absolute_y(MemoryUnit &r); //111-110-01
+        void sbc_absolute_x(MemoryUnit &r); //111-111-01
+        
+        // ASL
+        void asl_zeropg(MemoryUnit &); //000-001-10
+        void asl_accumulator(MemoryUnit &); //000-010-10
+        void asl_absolute(MemoryUnit &); //000-011-10
+        void asl_zeropg_x(MemoryUnit &r); //000-101-10
+        void asl_absolute_x(MemoryUnit &r); //000-111-10
+        
+        // ROL
+        void rol_zeropg(MemoryUnit &); //001-001-10
+        void rol_accumulator(MemoryUnit &); //001-010-10
+        void rol_absolute(MemoryUnit &); //001-011-10
+        void rol_zeropg_x(MemoryUnit &r); //001-101-10
+        void rol_absolute_x(MemoryUnit &r); //001-111-10
+        
+        // LSR
+        void lsr_zeropg(MemoryUnit &); //010-001-10
+        void lsr_accumulator(MemoryUnit &); //010-010-10
+        void lsr_absolute(MemoryUnit &); //010-011-10
+        void lsr_zeropg_x(MemoryUnit &r); //010-101-10
+        void lsr_absolute_x(MemoryUnit &r); //010-111-10
 
     public:
         CPU();

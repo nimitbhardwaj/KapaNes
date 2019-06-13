@@ -81,7 +81,30 @@ CPU::CPU() {
     insertOpcode(0b11010101, &CPU::cmp_zeropg_x, "CMP_ZEROPG_X");
     insertOpcode(0b11011001, &CPU::cmp_absolute_y, "CMP_ABS_Y");
     insertOpcode(0b11011101, &CPU::cmp_absolute_x, "CMP_ABS_X");
+    
+    // SBC: Under Construction
+    // insertOpcode(0b11100001, &CPU::sbc_indirect_x, "SBC_IND_X");
+    // insertOpcode(0b11100101, &CPU::sbc_zeropg, "SBC_ZEROPG");
+    // insertOpcode(0b11101001, &CPU::sbc_immediate, "SBC_IMM");
+    // insertOpcode(0b11101101, &CPU::sbc_absolute, "SBC_ABS");
+    // insertOpcode(0b11110001, &CPU::sbc_indirect_y, "SBC_IND_Y");
+    // insertOpcode(0b11110101, &CPU::sbc_zeropg_x, "SBC_ZEROPG_X");
+    // insertOpcode(0b11111001, &CPU::sbc_absolute_y, "SBC_ABS_Y");
+    // insertOpcode(0b11111101, &CPU::sbc_absolute_x, "SBC_ABS_X");
+    
+    // ASL
+    insertOpcode(0b00000110, &CPU::asl_zeropg, "ASL_ZEROPG");
+    insertOpcode(0b00001010, &CPU::asl_accumulator, "ASL_ACCUMULATOR");
+    insertOpcode(0b00001110, &CPU::asl_absolute, "ASL_ABSOLUTE");
+    insertOpcode(0b00010110, &CPU::asl_zeropg_x, "ASL_ZEROPG_X");
+    insertOpcode(0b00011110, &CPU::asl_absolute_x, "ASL_ABSOLUTE_X");
 
+    // ROL
+    insertOpcode(0b00100110, &CPU::rol_zeropg, "ROL_ZEROPG");
+    insertOpcode(0b00101010, &CPU::rol_accumulator, "ROL_ACCUMULATOR");
+    insertOpcode(0b00101110, &CPU::rol_absolute, "ROL_ABSOLUTE");
+    insertOpcode(0b00110110, &CPU::rol_zeropg_x, "ROL_ZEROPG_X");
+    insertOpcode(0b00111110, &CPU::rol_absolute_x, "ROL_ABSOLUTE_X");
 
 }
 
@@ -815,23 +838,19 @@ void CPU::cmp_indirect_x(MemoryUnit &r) {
     uint8_t kapa = r.getByteAt(addr), napa = r.getByteAt(addr+1);
     uint16_t finalAddr = (kapa | (napa << 8));
     uint8_t val = regAcc-r.getByteAt(finalAddr);
-    
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
+    }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < r.getByteAt(finalAddr)) {
+        setCarryFlag(0);
     }
 }
 
@@ -844,22 +863,19 @@ void CPU::cmp_zeropg(MemoryUnit &r) {
     instPtr++;
     uint8_t val = regAcc-r.getByteAt(alpha);
     
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
+    }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < r.getByteAt(alpha)) {
+        setCarryFlag(0);
     }
 }
 
@@ -871,22 +887,19 @@ void CPU::cmp_immediate(MemoryUnit &r) {
     instPtr++;
     uint8_t val = regAcc-alpha;
     
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
+    }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < alpha) {
+        setCarryFlag(0);
     }
 }
 
@@ -902,22 +915,19 @@ void CPU::cmp_absolute(MemoryUnit &r) {
     uint16_t addr = (alpha|(beta<<8));
     uint8_t val = regAcc-r.getByteAt(addr);
     
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
+    }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < r.getByteAt(addr)) {
+        setCarryFlag(0);
     }
 }
 
@@ -932,22 +942,19 @@ void CPU::cmp_indirect_y(MemoryUnit &r) {
     uint16_t addr = kapa|(napa<<8);
     uint8_t val = regAcc-r.getByteAt(addr+alpha);
 
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
+    }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < r.getByteAt(addr+alpha)) {
+        setCarryFlag(0);
     }
 }
 
@@ -961,22 +968,19 @@ void CPU::cmp_zeropg_x(MemoryUnit &r) {
     uint16_t addr = (alpha + regX)%256;
     uint8_t val = regAcc-r.getByteAt(addr);
 
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
+    }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < r.getByteAt(addr)) {
+        setCarryFlag(0);
     }
 }
 
@@ -992,22 +996,19 @@ void CPU::cmp_absolute_y(MemoryUnit &r) {
     addr += regY;
     uint8_t val = regAcc-r.getByteAt(addr);
 
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
+    }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < r.getByteAt(addr)) {
+        setCarryFlag(0);
     }
 }
 
@@ -1023,25 +1024,324 @@ void CPU::cmp_absolute_x(MemoryUnit &r) {
     addr += regX;
     uint8_t val = regAcc-r.getByteAt(addr);
 
-    if (val&(1<<7)) {
-        setNegetiveFlag(1);
-    } else {
-        setNegetiveFlag(0);
-    }
-
-    if (val < 0x100) {
-        setCarryFlag(1);
-    } else {
-        setCarryFlag(0);
-    }
-
+    setCarryFlag(1);
     if (val == 0) {
         setZeroFlag(1);
     } else {
         setZeroFlag(0);
     }
+    if (val >= 0x80) {
+        setNegetiveFlag(1);
+    } else {
+        setNegetiveFlag(0);
+    }
+    if (regAcc < r.getByteAt(addr)) {
+        setCarryFlag(0);
+    }
 }
 
+// SBC: Under Construction
+
+// ASL
+void CPU::asl_zeropg(MemoryUnit &r) {
+    // Shifts one bit by left and set the shifted bit to carry flag
+    // PC += 2
+    instPtr++;
+    uint8_t addr = r.getByteAt(instPtr);
+    uint8_t val = r.getByteAt(addr);
+    instPtr++;
+    if (val & 0x80) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val << 1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::asl_accumulator(MemoryUnit &r) {
+    // Shifts one bit by left and set the shifted bit to carry flag
+    // PC += 1
+    instPtr++;
+    uint8_t val = getAccumulator();
+    if (val & 0x80) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val << 1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    setAccumulator(val);
+}
+
+void CPU::asl_absolute(MemoryUnit &r) {
+    // Shifts one bit by left and set the shifted bit to carry flag
+    // PC += 3
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (beta << 8) | alpha;
+    uint8_t val = r.getByteAt(addr);
+    if (val & 0x80) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val << 1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::asl_zeropg_x(MemoryUnit &r) {
+    // Shifts one bit by left and set the shifted bit to carry flag
+    // PC += 2
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr), beta = regX;
+    instPtr++;
+    uint8_t addr = alpha+beta;
+    uint8_t val = r.getByteAt(addr);
+
+    if (val & 0x80) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val << 1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::asl_absolute_x(MemoryUnit &r) {
+    // Shifts one bit by left and set the shifted bit to carry flag
+    // PC += 3
+
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t addr = ((beta<<8)|alpha)+regX;
+    uint8_t val = r.getByteAt(addr);
+
+    if (val & 0x80) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val << 1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+// ROL
+void CPU::rol_zeropg(MemoryUnit &r) {
+    // Shifts one bit by left take shifted as carry and
+    // set the shifted bit to carry flag 
+    // PC += 2
+    instPtr++;
+    uint8_t addr = r.getByteAt(instPtr);
+    uint8_t val = r.getByteAt(addr);
+    uint8_t c = val&0x80;
+    instPtr++;
+    val = val << 1;
+    val = val | (getCarryFlag());
+    if (c == 0) setCarryFlag(0);
+    else setCarryFlag(1);
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::rol_accumulator(MemoryUnit &r) {
+    // Shifts one bit by left take shifted as carry and
+    // set the shifted bit to carry flag 
+    // PC += 1
+    instPtr++;
+    uint8_t val = getAccumulator();
+    uint8_t c = val&0x80;
+    val = val << 1;
+    val = val | (getCarryFlag());
+    if (c == 0) setCarryFlag(0);
+    else setCarryFlag(1);
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    setAccumulator(val);
+}
+
+void CPU::rol_absolute(MemoryUnit &r) {
+    // Shifts one bit by left take shifted as carry and
+    // set the shifted bit to carry flag 
+    // PC += 3
+
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (beta << 8) | alpha;
+    uint8_t val = r.getByteAt(addr);
+    uint8_t c = val&0x80;
+    val = val << 1;
+    val = val | (getCarryFlag());
+    if (c == 0) setCarryFlag(0);
+    else setCarryFlag(1);
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::rol_zeropg_x(MemoryUnit &r) {
+    // Shifts one bit by left take shifted as carry and
+    // set the shifted bit to carry flag 
+    // PC += 2
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr), beta = regX;
+    instPtr++;
+    uint8_t addr = alpha+beta;
+    uint8_t val = r.getByteAt(addr);
+
+    uint8_t c = val&0x80;
+    val = val << 1;
+    val = val | (getCarryFlag());
+    if (c == 0) setCarryFlag(0);
+    else setCarryFlag(1);
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::rol_absolute_x(MemoryUnit &r) {
+    // Shifts one bit by left take shifted as carry and
+    // set the shifted bit to carry flag 
+    // PC += 3
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t addr = ((beta<<8)|alpha)+regX;
+    uint8_t val = r.getByteAt(addr);
+
+    uint8_t c = val&0x80;
+    val = val << 1;
+    val = val | (getCarryFlag());
+    if (c == 0) setCarryFlag(0);
+    else setCarryFlag(1);
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+// LSR
+void CPU::lsr_zeropg(MemoryUnit &r) {
+    // Shift one bit to the right similar to reverse-ASL
+    // PC += 2
+    instPtr++;
+    uint8_t addr = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t val = r.getByteAt(addr);
+    if (val&1) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val>>1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::lsr_accumulator(MemoryUnit &r) {
+    // Shift one bit to the right similar to reverse-ASL
+    // PC += 1
+
+    instPtr++;
+    uint8_t val = regAcc;
+
+    if (val&1) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val>>1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    regAcc = val;
+}
+
+void CPU::lsr_absolute(MemoryUnit &r) {
+    // Shift one bit to the right similar to reverse-ASL
+    // PC += 3
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint16_t addr = (beta<<8)|alpha;
+    uint8_t val = r.getByteAt(addr);
+
+    if (val&1) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val>>1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);    
+}
+
+void CPU::lsr_zeropg_x(MemoryUnit &r) {
+    // Shift one bit to the right similar to reverse-ASL
+    // PC += 2
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr), beta = regX;
+    instPtr++;
+    uint8_t addr = alpha+beta;
+    uint8_t val = r.getByteAt(addr);
+
+    if (val & 1) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val >> 1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+}
+
+void CPU::lsr_absolute_x(MemoryUnit &r) {
+    // Shift one bit to the right similar to reverse-ASL
+    // PC += 3
+
+    instPtr++;
+    uint8_t alpha = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t beta = r.getByteAt(instPtr);
+    instPtr++;
+    uint8_t addr = ((beta<<8)|alpha)+regX;
+    uint8_t val = r.getByteAt(addr);
+
+    if (val & 1) setCarryFlag(1);
+    else setCarryFlag(0);
+    val = val >> 1;
+    if (val == 0) setZeroFlag(1);
+    else setZeroFlag(0);
+    if (val & 0x80) setNegetiveFlag(1);
+    else setNegetiveFlag(0);
+    r.setByteAt(addr, val);
+
+}
 // publics
 bool CPU::executeInstruction(MemoryUnit &r) {
     // Runs the opcode after fetching from RAM
